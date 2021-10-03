@@ -70,16 +70,17 @@ func sendMessage(c net.Conn, userName string) {
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	message := scanner.Text()
-
 	message = userName + ": " + message
 
 	err := gob.NewEncoder(c).Encode(message)
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 }
 
+//mostrar nombre del archivo en el servidor (solo en servidor)
 func sendFile(c net.Conn, userName string) {
 	fmt.Println("Not finished yet")
 }
@@ -116,7 +117,13 @@ func main() {
 			msg <- message
 
 		case 2:
-			//status <- 2
+			fmt.Println("Enter your file name")
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			message := scanner.Text()
+			message = userName + ": " + message
+			status <- 2
+			msg <- message
 
 		case 3:
 			fmt.Println("\nGoodbye")
