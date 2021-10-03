@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+//dialing the server
 func runClient(userName string, status chan int, msg chan string) {
 	c, err := net.Dial("tcp", ":9999")
 
@@ -19,7 +20,7 @@ func runClient(userName string, status chan int, msg chan string) {
 	var message, received string
 
 	//welcome message
-	message = userName + " has entered the room"
+	message = userName + " has entered the chat room"
 
 	//create its own directory for files
 	err = os.Mkdir(userName+"/", 0755)
@@ -85,6 +86,7 @@ func runClient(userName string, status chan int, msg chan string) {
 	}
 }
 
+//send file name and its extension
 func clientSendFile(c net.Conn, userName, message string) {
 	message = userName + ": " + message
 	err := gob.NewEncoder(c).Encode(message)
@@ -99,23 +101,29 @@ func main() {
 	var status = make(chan int)
 	var msg = make(chan string)
 
+	//until the client enters their name
+	//the client won't connect to the server
 	fmt.Println("Enter your username")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	userName := scanner.Text()
 
+	//goroutine connecting to server
 	go runClient(userName, status, msg)
 	status <- 0
 
+	//main menu
 	fmt.Println("\nMenu" +
 		"\n 1. Send message" +
 		"\n 2. Send File" +
 		"\n 3. Stop client")
 
+	//keep listening to user input
 	for {
 		fmt.Scanln(&opc)
 
 		switch opc {
+		//send message
 		case 1:
 			fmt.Println("Enter your message")
 			scanner := bufio.NewScanner(os.Stdin)
@@ -124,7 +132,7 @@ func main() {
 			message = userName + ": " + message
 			status <- 1
 			msg <- message
-
+		//send file
 		case 2:
 			fmt.Println("Enter your file name")
 			scanner := bufio.NewScanner(os.Stdin)
@@ -132,12 +140,12 @@ func main() {
 			message := scanner.Text()
 			status <- 2
 			msg <- message
-
+		//disconnect
 		case 3:
 			status <- 3
 			msg <- "disconnect"
 			return
-
+		//any other input won't be accepted
 		default:
 			fmt.Println("\nWrong option")
 		}
