@@ -1,0 +1,7 @@
+Javier has entered the room
+Grover has entered the room
+Grover: Hola
+Javier: Hola
+Grover: Como andan
+Javier: Todo bien, ¿y usted?
+Grover: Awebo
