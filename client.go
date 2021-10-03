@@ -12,18 +12,25 @@ func runClient(userName string, status chan int, msg chan string) {
 	c, err := net.Dial("tcp", ":9999")
 
 	if err != nil {
-		fmt.Println("Error ", err)
+		fmt.Println(err)
 		return
 	}
-	defer c.Close()
 
 	var message, received string
 
 	//welcome message
 	message = userName + " has entered the room"
 
+	//create its own directory for files
+	err = os.Mkdir(userName+"/", 0755)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	//always listening
 	go func() {
+		defer c.Close()
 		for {
 			err := gob.NewDecoder(c).Decode(&received)
 			if err != nil {
@@ -59,30 +66,32 @@ func runClient(userName string, status chan int, msg chan string) {
 
 			//send file
 			if _status == 2 {
-				sendFile(c, userName)
+				message = <-msg
+				clientSendFile(c, userName, message)
+			}
+
+			//terminate connection
+			if _status == 3 {
+				message = <-msg
+				err := gob.NewEncoder(c).Encode(message)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				fmt.Println("\nGoodbye!")
+				return
 			}
 		}
 	}
 }
 
-func sendMessage(c net.Conn, userName string) {
-	fmt.Println("Enter your message")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	message := scanner.Text()
+func clientSendFile(c net.Conn, userName, message string) {
 	message = userName + ": " + message
-
 	err := gob.NewEncoder(c).Encode(message)
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-}
-
-//mostrar nombre del archivo en el servidor (solo en servidor)
-func sendFile(c net.Conn, userName string) {
-	fmt.Println("Not finished yet")
 }
 
 func main() {
@@ -121,12 +130,12 @@ func main() {
 			scanner := bufio.NewScanner(os.Stdin)
 			scanner.Scan()
 			message := scanner.Text()
-			message = userName + ": " + message
 			status <- 2
 			msg <- message
 
 		case 3:
-			fmt.Println("\nGoodbye")
+			status <- 3
+			msg <- "disconnect"
 			return
 
 		default:

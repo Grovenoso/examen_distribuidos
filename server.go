@@ -3,13 +3,18 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 var (
-	chatLog     []string
-	connections []net.Conn
+	chatLog        []string
+	userNames      []string
+	connections    []net.Conn
+	newConnections []net.Conn
 )
 
 func server() {
@@ -42,20 +47,63 @@ func handleClient(c net.Conn) {
 			return
 		}
 
-		fmt.Println(msg)
+		if strings.Contains(msg, ".") {
+			serverSendFile(c, msg)
+		}
 
-		chatLog = append(chatLog, msg)
+		if strings.Contains(msg, "has entered the room") {
+			receive := strings.Split(msg, " has")
+			userNames = append(userNames, receive[0])
+		}
 
-		for i := 0; i < len(connections); i++ {
-			if c != connections[i] {
-				err := gob.NewEncoder(connections[i]).Encode(msg)
-				if err != nil {
-					fmt.Println(err)
+		if msg != "disconnect" {
+			fmt.Println(msg)
+
+			chatLog = append(chatLog, msg)
+
+			for i := 0; i < len(connections); i++ {
+				if c != connections[i] {
+					err := gob.NewEncoder(connections[i]).Encode(msg)
+					if err != nil {
+						fmt.Println(err)
+					}
 				}
 			}
+		} else {
+			for i := 0; i < len(connections); i++ {
+				if c == connections[i] {
+					c.Close()
+					fmt.Println("Client has disconnected")
+				} else {
+					newConnections = append(newConnections, connections[i])
+				}
+			}
+			connections = newConnections
+			newConnections = nil
 		}
 	}
 
+}
+
+func serverSendFile(c net.Conn, msg string) {
+	for i := 0; i < len(connections); i++ {
+		if c != connections[i] {
+			receive := strings.Split(msg, ": ")
+			dataBytes, err := ioutil.ReadFile(receive[1])
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			f, err := os.Create(userNames[i] + "/" + receive[1])
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			defer f.Close()
+
+			f.Write(dataBytes)
+		}
+	}
 }
 
 func backupMessages() {

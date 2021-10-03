@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"strconv"
 )
 
 func main() {
@@ -14,16 +13,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for i := 0; i < 10; i++ {
-		n := strconv.Itoa(i)
-		f, err := os.Create("2049_" + n + ".jpg")
-
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		defer f.Close()
-
-		f.Write(dataBytes)
+	err = os.Mkdir("user/", 0755)
+	if err != nil {
+		fmt.Println(err)
 	}
+
+	f, err := os.Create("user/2049_1.jpg")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer f.Close()
+
+	f.Write(dataBytes)
 }
