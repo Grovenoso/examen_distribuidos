@@ -1,0 +1,20 @@
+Javier has entered the chat room
+Francisco has entered the chat room
+Grover has entered the chat room
+Morales has entered the chat room
+Javier: Hola a todos
+Francisco: Hola, javier, un gusto saludarte
+Grover: Pedro que gusto de verte
+Morales: Wenas
+Javier: buenas las tengan, les mandare un pequeño archivo
+Javier: 2049.jpg
+Francisco: Yo tambien tengo un archivo que mandarles
+Francisco: hola.txt
+Morales: Ahora es mi turno
+Morales: rayangasling.jpeg
+Javier: Hasta luego, tengo que hacer el examen de Distribuidos
+Francisco: Igual yo, tengo entendido que esta complicado
+Grover: Yo ya he terminado, si quieren puedo ayudarles
+Morales: Por favor, yo también necesito ayuda
+Javier: Si quieren seguimos la conversación en llamada por Discord
+Francisco: De acuerdo, allá nos vemos
